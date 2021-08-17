@@ -1,0 +1,174 @@
+Module 17/ BSuperviced Machine Learning and Credit Risk
+
+# Machine Learning Environment 
+----------------------------------------------
+# 17.1.1 Create a Machine Learning Environment
+
+# 1. If your PythonData environment is activated when you launch the command line, deactivate the environment.To deactivate an active environment, type conda deactivate.
+# 2. Update the global conda environment by typing conda update conda and press Enter.
+# 3. After all the packages are collected, you'll see the prompt Proceed ([y]/n)?. Press the "Y" key (for "yes") and press Enter.
+# 4. In the command line, type conda create -n mlenv python=3.7 anaconda. The name of your new environment is mlenv.
+# 5. After all the packages are collected, you'll see the prompt Proceed ([y]/n)?. Press the "Y" key (for "yes") and press Enter.
+# 6. Activate your mlenv environment by typing conda activate mlenv and press Enter.
+
+## Check Dependencies for the imbalanced-learn Package
+# NumPy, version 1.11 or later
+# SciPy, version 0.17 or later
+# Scikit-learn, version 0.21 or later
+$ conda list
+
+# If you encounter an error while starting Jupyter Notebook, you may need to install the environment_kernels module with 
+$ pip install environment_kernels
+
+## Install the imbalanced-learn Package
+# With the mlenv environment activated, either in the Terminal in macOS or in the Anaconda Prompt (mlenv) in Windows, type the following:
+$ conda install -c conda-forge imbalanced-learn
+
+## Add the Machine Learning Environment to Jupyter Notebook
+# To use the mlenv environment we just created in the Jupyter Notebook, we need to add it to the kernels. In the command line, type 
+$ python -m ipykernel install --user --name mlenv 
+
+-----------------------------------
+# 17.2.3 Linear Regression Example
+
+# Create a new jupyter notebook, and be sure to select the mlenv kernel for the notebook
+
+# Import Dependencies and Libraries
+import pandas as pd
+from pathlib import Path
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Load the CSV file as a Pandas DataFrame and preview the DataFrame
+df = pd.read_csv(Path('./Resources/Salary_Data.csv'))
+df.head()
+
+# Inspect the relationship between Years of Experience and Salary
+plt.scatter(df.YearsExperience, df.Salary)
+plt.xlabel('Years of Experience')
+plt.ylabel('Salary in USD')
+plt.show()
+
+# Formats the data to meet the requirements of the Scikit-learn library
+X = df.YearsExperience.values.reshape(-1, 1)
+
+# Examine the first five entries in X
+X[:5]
+
+# The shape of X is 30 samples, with a single feature (column)
+X.shape
+
+# Assign the target variable to y
+y = df.Salary
+
+# Create an instance of the linear regression model.
+# A specific object called model is created that will analyze the data and store information specific to this dataset
+model = LinearRegression()
+
+# Fitting or Training
+# This learning stage starts once the model is instantiated, it will analyze the data and attempt to learn patterns in the data. 
+model.fit(X, y)
+
+# After the learning stage, the predict() method is used to generate predictions
+y_pred = model.predict(X)
+print(y_pred.shape)
+
+# Plot the predictions as a red line against the data points
+plt.scatter(X, y)
+plt.plot(X, y_pred, color='red')
+plt.show()
+
+# Examine the specific parameters of the model: the slope and the y-intercept.
+print(model.coef_)
+print(model.intercept_)
+
+# Summarize the basic pattern for supervised learning we used in this linear regression example:
+
+# Split the data into input (X) and output (y).
+# Create an instance of the model with model = LinearRegression().
+# Train the model with the dataset with model.fit(X,y).
+# Create predictions with y_pred = model.predict(X)
+
+
+# Logistic Regression 
+---------------------------------------
+# 17.3.1 Overview of Logistic Regression
+
+# Logistic regression predicts binary outcomes
+
+## Practice Logistic Regression
+
+# Import Dependencies and Libraries
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from sklearn.datasets import make_blobs
+X, y = make_blobs(centers=2, random_state=42)
+
+print(f"Labels: {y[:10]}")
+print(f"Data: {X[:10]}")
+
+# Visualizing both classes
+plt.scatter(X[:, 0], X[:, 1], c=y)
+
+# Split the data into training and testing
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, 
+                                                    y, 
+                                                    random_state=1, 
+                                                    stratify=y)
+## Split the Dataset Into Train and Test Sets
+
+# The model uses the training dataset to learn from it. It then uses the testing dataset to assess its performance.
+
+# Split dataset into training and testing sets
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X,
+    y, random_state=1, stratify=y)
+
+## Instantiate a Logistic Regression Model
+
+# Create a Logistic Regression Model
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(solver='lbfgs', random_state=1)
+classifier
+
+LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,
+intercept_scaling=1, max_iter=100, multi_class='warn', penalty='12',
+andom_state=1, solver='lbfgs' tol=0.0001, warm_start=False)
+
+## Train the Logistic Regression Model
+
+# The next step is to train the model with the training set data. We use the fit() method to train the model:
+classifier.fit(X_train, y_train)
+
+## Validate the Logistic Regression Model
+
+# The next step is to create predictions and assemble the results into a Pandas DataFrame
+predictions = classifier.predict(X_test)
+pd.DataFrame({"Prediction": predictions, "Actual": y_test})
+
+# Evaluate its performance
+from sklearn.metrics import accuracy_score
+accuracy_score(y_test, predictions)
+
+# The sole purpose of the next cell is to create a new data point, which shows up as a red dot on the new plot
+import numpy as np
+new_data = np.array([[-2, 6]])
+plt.scatter(X[:, 0], X[:, 1], c=y)
+plt.scatter(new_data[0, 0], new_data[0, 1], c="r", marker="o", s=100)
+plt.show()
+
+# Use predict() to predict which class the new data point belongs to
+predictions = classifier.predict(new_data)
+print("Classes are either 0 (purple) or 1 (yellow)")
+print(f"The new point was classified as: {predictions}")
+
+# Summarize the steps we took to use a logistic regression model:
+
+1) Create a model with LogisticRegression().
+2) Train the model with model.fit().
+3) Make predictions with model.predict().
+4) Validate the model with accuracy_score().
+
